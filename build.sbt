@@ -1,4 +1,4 @@
-name := "scala-executable-spike"
+name := "scala-executable-example"
 
 version := "0.1"
 
