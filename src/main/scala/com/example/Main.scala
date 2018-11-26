@@ -4,7 +4,7 @@ import akka.Done
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 //Important - Needs to be an object (singleton), and needs to extend "App"
 object Main extends App{
