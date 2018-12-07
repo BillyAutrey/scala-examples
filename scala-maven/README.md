@@ -3,9 +3,17 @@
 This is a toy example, building off of the scala-archetype-simple:1.7 Maven archetype.  Main purpose is to show Scala/Java interoperability in a Maven project.
 
 ## Explanation
-The core functionality that allows you to compile scala code via Maven is the [Scala Maven Plugin](https://github.com/davidB/scala-maven-plugin).  In the pom.xml for this project, you can see the configuration for the scala plugin in the build/plugins configuration path.
+The core functionality that allows you to compile scala code via Maven is the [Scala Maven Plugin](https://github.com/davidB/scala-maven-plugin).  In the pom.xml for this project, you can see the configuration for the scala plugin in the build/plugins configuration path, as well as a scala library in the dependencies.
 
 ```xml
+<dependencies>
+    <dependency>
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala-library</artifactId>
+      <version>${scala.version}</version>
+    </dependency>
+    ...
+</dependencies>
 <build>
    <plugins>
       <plugin>
@@ -32,6 +40,28 @@ The core functionality that allows you to compile scala code via Maven is the [S
    ...
 </build>
 ```
+
+Note that you will also need to explicitly include this plugin in build/plugins to compile Java.
+```xml
+      <!-- For Java -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+```
+
 
 ## Generating a project using mvn archetype
 If you want to generate the base project structure for this example, you can run this command:
