@@ -10,6 +10,9 @@ object App {
   def main(args : Array[String]) {
     println( "Hello World!" )
     println("concat arguments = " + foo(args))
+
+    val javaClass = new MyJavaClass()
+    println(javaClass.callScalaClass("the Scala app"))
   }
 
 }
