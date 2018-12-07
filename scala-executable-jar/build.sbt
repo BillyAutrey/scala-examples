@@ -1,4 +1,4 @@
-name := "scala-executable-example"
+name := "scala-executable-jar"
 
 version := "0.1"
 
