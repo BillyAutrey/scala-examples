@@ -5,17 +5,29 @@ ThisBuild / version          := "0.1.0-SNAPSHOT"
 ThisBuild / organization     := "com.example"
 ThisBuild / organizationName := "example"
 
-lazy val akkaVersion = "2.5.21"
-
-lazy val root = (project in file("."))
-  .settings(
-    name := "scala-java-fortify",
-    libraryDependencies ++= Seq(
-      scalaTest % Test,
-      "com.typesafe.akka" %% "akka-stream" % akkaVersion,
-      "com.typesafe.akka" %% "akka--testkit" % akkaVersion % Test,
-      "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion % Test
-    )
+val commonSettings = Seq(
+  libraryDependencies ++= Seq(
+    scalaTest % Test,
+    akka,
+    akkaTest % Test,
+    akkaStreamTest % Test
   )
+)
 
-// See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
+lazy val scalaFortify = (project in file("scala-fortify")).settings{
+  commonSettings ++ 
+  Seq(
+    name := "scala-fortify"
+  )
+}
+
+lazy val javaFortify = (project in file("java-fortify"))
+  .dependsOn(scalaFortify)
+  .settings{
+    inThisBuild(
+      commonSettings ++
+      Seq(
+        name := "java-fortify"
+      )
+    )
+}
