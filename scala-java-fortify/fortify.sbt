@@ -6,18 +6,28 @@ credentials += Credentials(
 resolvers += "lightbend-commercial-releases" at
   "https://repo.lightbend.com/commercial-releases/"
 
-//// `translate` task
+// Task definitions
 val translate: TaskKey[Unit] = taskKey("Fortify Translation")
+val scan: TaskKey[Unit] = taskKey("Fortify Scan")
+val cleanFortify: TaskKey[Unit] = taskKey("Fortify Clean")
+
+def javaSources(base: File): String = ((base / "src") ** "*.java").getPaths().mkString(" ")
+def formatClasspath(classPath: Keys.Classpath): String = classPath.map(_.data.getPath()).mkString(":")
 
 
-logLevel in translate := Level.Debug
+val fpr = "scala-java-fortify.fpr"
+val buildId = "scala-java-fortify"
 
 // `scan` task
-val fpr = "scala-java-fortify.fpr"
-val scan: TaskKey[Unit] = taskKey("Fortify Scan")
 scan := {
-  Seq("bash", "-c", s"rm -rf ${fpr}")
-  Seq("bash", "-c", s"sourceanalyzer -b scala-java-fortify -f ${fpr} -scan")
+  Seq("bash", "-c", s"rm -rf ${fpr}").!
+  Seq("bash", "-c", s"sourceanalyzer -b $buildId -f ${fpr} -scan").!
+}
+
+// `cleanFortify` task
+cleanFortify :=  {
+  clean.value
+  Seq("bash", "-c", s"sourceanalyzer -b $buildId -clean").!
 }
 
 lazy val fortifySettings = Seq(
@@ -25,7 +35,7 @@ lazy val fortifySettings = Seq(
     "com.lightbend" % "scala-fortify" % "1.0.13"
       classifier "assembly"
       cross CrossVersion.patch),
-  scalacOptions += s"-P:fortify:build=scala-java-fortify"
+  scalacOptions += s"-P:fortify:build=$buildId"
 )
 
 val commonSettings = Seq(
@@ -37,16 +47,20 @@ val commonSettings = Seq(
   )
 )
 
-def javaSources(base: File): PathFinder = (base / "src") ** "*.java"
-
-val printClasspath = taskKey("Print classpath")
-
 //defining sources again, just so we can modify for fortify only
 lazy val scalaFortify = (project in file("scala-fortify")).settings {
   commonSettings ++
   fortifySettings ++
   Seq(
-    name := "scala-fortify"
+    name := "scala-fortify",
+    translate := {
+      streams.value.log.info(s"Running Scala translation")
+      Def.sequential(
+        Def.task { Seq("bash", "-c", s"sourceanalyzer -b $buildId -clean").! },
+        clean in Compile,
+        compile in Compile
+      ).value
+    }
   )
 }
 
@@ -55,24 +69,17 @@ lazy val javaFortify = (project in file("java-fortify"))
   .settings(
     commonSettings ++
     Seq(
+      name := "java-fortify",
       translate := {
         Def.taskDyn {
-          // each sources definition is of type Seq[File],
-          //   giving us a Seq[Seq[File]] that we then flatten to Seq[File]
-          //        Def.task {
-          //          Seq("bash", "-c", s"sourceanalyzer -b scala-java-fortify -clean")
-          //        },
-          //        clean in Compile,
-          val javaSourceList: String  = javaSources(baseDirectory.value).getPaths().mkString(" ")
-          val classpath: String = (fullClasspathAsJars in Compile).value.map(_.data.getPath()).mkString(":")
-          streams.value.log.info(s"Running translation")
+          val javaSourceList: String  = javaSources(baseDirectory.value)
+          val classpath: String = formatClasspath((fullClasspathAsJars in Compile).value)
+
+          streams.value.log.info(s"Running Java translation")
           Def.task {
-            Seq("bash", "-c", s"sourceanalyzer -b scala-java-fortify -cp $classpath $javaSourceList").!
+            Seq("bash", "-c", s"sourceanalyzer -b $buildId -cp $classpath $javaSourceList").!
           }
         }.value
-      },
-      name := "java-fortify"
+      }
     )
   )
-
-// See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
