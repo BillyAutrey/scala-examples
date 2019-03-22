@@ -37,10 +37,10 @@ cleanFortify :=  {
 }
 
 translate := {
-  streams.value.log.info(s"Running Scala translation")
   Def.sequential(
     Def.task { Seq("bash", "-c", s"sourceanalyzer -b $buildId -clean").! },
     clean in Compile,
+    Def.task { streams.value.log.info(s"Running Scala translation") },
     compile in Compile,
     Def.taskDyn {
       val javaSourceList: String  = javaSources(baseDirectory.value)

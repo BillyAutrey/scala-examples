@@ -8,12 +8,11 @@ The code itself does nothing important.  It sums from 1 to a random integer, as 
 Execute the following tasks in order:
 
 ```sbtshell
-scalaFortify/translate
-javaFortify/translate
+translate
 scan
 ```
 
-If you would like to clean the project, you can execute `cleanFortify`.  This will execute `clean` on both submodules, as well as a `sourceanalyzer -b buildId -clean`.
+If you would like to clean the project, you can execute `cleanFortify`.  This will execute `clean`, as well as a `sourceanalyzer -b buildId -clean`.
 
 An example of a full workflow:
 
@@ -21,26 +20,18 @@ An example of a full workflow:
 sbt:scala-java-fortify> cleanFortify
 [success] Total time: 1 s, completed Mar 18, 2019 4:14:31 PM
 
-sbt:scala-java-fortify> scalaFortify/translate
-[info] Updating scalaFortify...
-[info] Done updating.
-[info] Compiling 1 Scala source to /userdir/scala-java-fortify/scala-fortify/target/scala-2.12/classes ...
-FortifyPlugin 1.0.13, licensed to <user> (expires: 20XX-01-01T00:00Z[UTC])
-[info] Done compiling.
+sbt:scala-java-fortify> translate
+sbt:scala-fortify> translate
 [info] Running Scala translation
-[success] Total time: 2 s, completed Mar 18, 2019 4:14:37 PM
-
-sbt:scala-java-fortify> javaFortify/translate
-[info] Updating javaFortify...
+[info] Updating ...
 [info] Done updating.
-[info] Packaging /userdir/scala-java-fortify/scala-fortify/target/scala-2.12/scala-fortify_2.12-0.1.0-SNAPSHOT.jar ...
-[info] Done packaging.
-[info] Compiling 1 Java source to /userdir/scala-java-fortify/java-fortify/target/scala-2.12/classes ...
+[info] Compiling 1 Scala source and 1 Java source to /Users/billibuster/dev/accounts/spglobal/scala-examples/scala-java-fortify/target/scala-2.12/classes ...
+FortifyPlugin 1.0.13, licensed to <user> (expires: 2099-01-01T00:00Z[UTC])
 [info] Done compiling.
-[info] Packaging /userdir/scala-java-fortify/java-fortify/target/scala-2.12/java-fortify_2.12-0.1.0-SNAPSHOT.jar ...
+[info] Packaging /userdir/scala-java-fortify/target/scala-2.12/scala-fortify_2.12-0.1.0-SNAPSHOT.jar ...
 [info] Done packaging.
-[info] Running Java translation
-[success] Total time: 3 s, completed Mar 18, 2019 4:14:45 PM
+[info] Running Java translation on /userdir/scala-java-fortify/src/main/java/example/Main.java
+[success] Total time: 5 s, completed Mar 19, 2019 5:18:22 PM
 
 sbt:scala-java-fortify> scan
 [success] Total time: 66 s, completed Mar 18, 2019 4:16:07 PM
